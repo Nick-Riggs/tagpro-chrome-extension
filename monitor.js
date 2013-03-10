@@ -15,6 +15,9 @@
     }
 
     function checkForGames() {
+        if (!localStorage["server"])
+            return;
+
         if (!notify)
             return;
 
@@ -23,7 +26,7 @@
 
         var request = new XMLHttpRequest();
 
-        request.open("GET", "http://tagpro.koalabeast.com/stats", true);
+        request.open("GET", "http://" + localStorage["server"] + ".koalabeast.com/stats", true);
         request.onload = function() {
             var data = JSON.parse(request.response);
 
@@ -80,3 +83,23 @@
     };
 
 })(this);
+
+if (!localStorage["server"] || localStorage["server"] == "") {
+
+    var notification = webkitNotifications.createNotification(
+        "icon.png",
+        "TagPro",
+        "Click Here to select your server"
+    );
+
+    notification.show();
+
+    notification.onclick = function() {
+        var options = chrome.extension.getURL("options.html");
+        chrome.tabs.create({
+            url: options
+        });
+        notification.close();
+    };
+
+}
