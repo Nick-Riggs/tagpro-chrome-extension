@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     players.innerText = result.players;
     games.innerText = result.games;
+    join.href = "http://" + localStorage["server"] + ".koalabeast.com/"
 
     var snoozePressed = function() {
         background.snooze(parseInt(this.value) * 3600000);
