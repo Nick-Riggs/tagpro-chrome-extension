@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     var background = chrome.extension.getBackgroundPage(),
-        result = background.getLastResult(),
+        server = background.getLastResult(),
         join = document.getElementById("join"),
         players = document.getElementById("players"),
         games = document.getElementById("games"),
@@ -8,9 +8,9 @@ document.addEventListener("DOMContentLoaded", function() {
         snooze2 = document.getElementById("snooze2"),
         snooze3 = document.getElementById("snooze3");
 
-    players.innerText = result.players;
-    games.innerText = result.games;
-    join.href = "http://" + localStorage["server"] + ".koalabeast.com/"
+    players.innerText = server.players;
+    games.innerText = server.games;
+    join.href = server.url;
 
     var snoozePressed = function() {
         background.snooze(parseInt(this.value) * 3600000);

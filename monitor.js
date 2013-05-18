@@ -1,18 +1,10 @@
 (function(context) {
 
     var notify = true,
-        lastResult = null,
+        lastServerResult = null,
         lastBother = 0,
         botherSpan = 0,
         notification = null;
-
-    function addS(word, count)
-    {
-        if (count > 1)
-            return word + "s";
-
-        return word;
-    }
 
     function checkForGames() {
         if (!localStorage["server"])
@@ -26,13 +18,22 @@
 
         var request = new XMLHttpRequest();
 
-        request.open("GET", "http://" + localStorage["server"] + ".koalabeast.com/stats", true);
+        request.open("GET", "http://tagpro.koalabeast.com/servers", true);
         request.onload = function() {
-            var data = JSON.parse(request.response);
+            var servers = JSON.parse(request.response),
+                server = null;
 
-            lastResult = data;
+            servers.forEach(function(someServer) {
+                if (someServer.name.toLowerCase() == localStorage["server"])
+                    server = someServer;
+            });
 
-            if (data.players > 0) {
+            if (!server)
+                return;
+
+            if (server.players > 0) {
+                lastServerResult = server;
+
                 notification = webkitNotifications.createHTMLNotification(
                     'notification.html'
                 );
@@ -53,7 +54,6 @@
                 var thisAutoClose = setTimeout(function() {
                     thisNotification.close();
                 }, 120000);
-
             }
         };
 
@@ -70,7 +70,7 @@
     };
 
     context.getLastResult = function() {
-        return lastResult;
+        return lastServerResult;
     };
 
     context.gameJoined = function() {
@@ -84,7 +84,8 @@
 
 })(this);
 
-if (!localStorage["server"] || localStorage["server"] == "") {
+if (!localStorage["server"] || localStorage["server"] == "" || localStorage["server"].indexOf("tagpro") > -1) {
+    localStorage["server"] == "";
 
     var notification = webkitNotifications.createNotification(
         "icon.png",
@@ -101,5 +102,4 @@ if (!localStorage["server"] || localStorage["server"] == "") {
         });
         notification.close();
     };
-
 }

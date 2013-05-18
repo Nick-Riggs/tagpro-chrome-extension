@@ -1,7 +1,7 @@
 {
     "name": "TagPro Alerts",
     "options_page": "options.html",
-    "version": "0.9",
+    "version": "1.0.0.1",
     "manifest_version": 2,
     "description": "Alerts other TagPro players that you are playing and sends you an alert when others begin to play.",
     "browser_action": {
@@ -12,7 +12,6 @@
     },
     "permissions": [
         "http://tagpro.koalabeast.com/",
-        "http://tagpro-chord.koalabeast.com/",
         "background",
         "notifications"
     ],
