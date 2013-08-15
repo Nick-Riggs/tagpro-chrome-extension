@@ -34,52 +34,59 @@
             if (server.players > 0) {
                 lastServerResult = server;
 
-                notification = webkitNotifications.createHTMLNotification(
-                    'notification.html'
-                );
-
-                var thisNotification = notification;
-
-                thisNotification.onshow = function() {
-                    notify = false;
-                };
-
-                thisNotification.onclose = function() {
-                    notify = true;
-                    clearTimeout(thisAutoClose);
-                };
-
-                thisNotification.show();
-
-                var thisAutoClose = setTimeout(function() {
-                    thisNotification.close();
-                }, 120000);
+                chrome.notifications.create(
+                    "FolksPlaying",
+                    {
+                        type: "basic",
+                        title: "Balls Unite!",
+                        message: "There is currently " + lastServerResult.players + " balls in " + lastServerResult.games + " TagPro games.",
+                        iconUrl: "icon_128.png",
+                        buttons: [
+                            { title: "Snooze for 2 Hours" },
+                            { title: "Snooze for 8 Hours" }
+                        ]
+                    },
+                    function() { });
             }
+            else
+                chrome.notifications.clear("FolksPlaying", function () {});
         };
 
         request.send(null);
     }
 
+    chrome.notifications.onClicked.addListener(function(notificationId) {
+        if (notificationId == "SelectServer") {
+            chrome.tabs.create({
+                url: chrome.extension.getURL("options.html")
+            });
+
+            chrome.notifications.clear("SelectServer", function () {});
+
+            return;
+        }
+
+        chrome.notifications.clear("FolksPlaying", function () {});
+        chrome.tabs.create({url: lastServerResult.url});
+        context.snooze(2);
+    });
+
+    chrome.notifications.onButtonClicked.addListener(function(notificationId, index) {
+        chrome.notifications.clear("FolksPlaying", function () {});
+        context.snooze(index == 0 ? 2 : 8);
+    });
+
+    chrome.notifications.onClosed.addListener(function(notificationId, byUser) {
+        if (notificationId == "FolksPlaying" && byUser)
+            context.snooze(2);
+    });
+
     setInterval(checkForGames, 30000);
     checkForGames();
 
     context.snooze = function(howLong) {
-        botherSpan = howLong;
+        botherSpan = howLong * 3600000;
         lastBother = new Date().getTime();
-        notification.close();
-    };
-
-    context.getLastResult = function() {
-        return lastServerResult;
-    };
-
-    context.gameJoined = function() {
-        botherSpan = 3600000;
-        lastBother = new Date().getTime();
-
-        setTimeout(function() {
-            notification.close();
-        }, 500);
     };
 
 })(this);
@@ -93,13 +100,13 @@ if (!localStorage["server"] || localStorage["server"] == "" || localStorage["ser
         "Click Here to select your server"
     );
 
-    notification.show();
-
-    notification.onclick = function() {
-        var options = chrome.extension.getURL("options.html");
-        chrome.tabs.create({
-            url: options
-        });
-        notification.close();
-    };
+    chrome.notifications.create(
+        "SelectServer",
+        {
+            type: "basic",
+            title: "TagPro",
+            message: "Click Here to select your server",
+            iconUrl: "icon_128.png"
+        },
+        function() { });
 }
